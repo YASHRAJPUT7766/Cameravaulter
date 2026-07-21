@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Camera</title>
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== CAMERA SCREEN (disguise layer) ===================== -->
+<div id="cameraScreen" class="screen active">
+  <div class="cam-topbar">
+    <button id="flashBtn" class="icon-btn" aria-label="Flash">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+    </button>
+    <div class="cam-mode-label" id="modeLabel">PHOTO</div>
+    <button id="settingsGear" class="icon-btn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.63c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </button>
+  </div>
+
+  <div class="viewfinder">
+    <video id="camVideo" autoplay playsinline muted></video>
+    <canvas id="camCanvas" style="display:none;"></canvas>
+    <div id="camPlaceholder" class="cam-placeholder">
+      <svg viewBox="0 0 24 24" width="48" height="48"><path fill="currentColor" opacity="0.4" d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4zM9 2l-1.83 2H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-2.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+      <p>Tap to enable camera</p>
+    </div>
+    <div class="focus-ring" id="focusRing"></div>
+  </div>
+
+  <div class="cam-bottombar">
+    <div class="thumb-slot" id="thumbSlot"></div>
+    <button id="shutterBtn" class="shutter-btn" aria-label="Capture"></button>
+    <button id="switchModeBtn" class="mode-switch-btn" aria-label="Switch camera">
+      <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" opacity="0"/><path fill="currentColor" d="M9.5 3.5L8 5H4v14h16V5h-4l-1.5-1.5h-5zM12 8a4 4 0 110 8 4 4 0 010-8z"/></svg>
+    </button>
+  </div>
+  <div class="cam-modes">
+    <span data-mode="video">VIDEO</span>
+    <span data-mode="photo" class="active">PHOTO</span>
+    <span data-mode="portrait">PORTRAIT</span>
+  </div>
+</div>
+
+<!-- ===================== FACE SETUP SCREEN ===================== -->
+<div id="setupScreen" class="screen">
+  <div class="secure-header">
+    <h1>Set up Face Lock</h1>
+    <p>This protects your private vault. Position your face in the frame and hold still.</p>
+  </div>
+  <div class="scan-frame">
+    <video id="setupVideo" autoplay playsinline muted></video>
+    <canvas id="setupCanvas" style="display:none;"></canvas>
+    <div class="scan-ring" id="setupRing"></div>
+  </div>
+  <div class="scan-status" id="setupStatus">Align your face inside the circle</div>
+  <button id="captureSetupBtn" class="primary-btn">Capture Face</button>
+  <button id="retrySetupBtn" class="ghost-btn" style="display:none;">Retry</button>
+  <button id="confirmSetupBtn" class="primary-btn" style="display:none;">Confirm & Lock</button>
+</div>
+
+<!-- ===================== FACE UNLOCK SCREEN ===================== -->
+<div id="unlockScreen" class="screen">
+  <div class="secure-header">
+    <h1>Vault Locked</h1>
+    <p>Look at the camera to unlock</p>
+  </div>
+  <div class="scan-frame">
+    <video id="unlockVideo" autoplay playsinline muted></video>
+    <canvas id="unlockCanvas" style="display:none;"></canvas>
+    <div class="scan-ring" id="unlockRing"></div>
+  </div>
+  <div class="scan-status" id="unlockStatus">Scanning...</div>
+  <button id="scanBtn" class="primary-btn">Scan Face</button>
+  <button id="backToCamBtn" class="ghost-btn">Back to Camera</button>
+</div>
+
+<!-- ===================== VAULT SCREEN ===================== -->
+<div id="vaultScreen" class="screen">
+  <div class="vault-header">
+    <button id="closeVaultBtn" class="icon-btn" aria-label="Close vault">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+    <h2>Vault</h2>
+    <button id="importBtn" class="icon-btn" aria-label="Import files">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>
+    </button>
+  </div>
+  <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none;">
+
+  <div class="vault-tabs">
+    <button class="tab-btn active" data-tab="all">All</button>
+    <button class="tab-btn" data-tab="image">Photos</button>
+    <button class="tab-btn" data-tab="video">Videos</button>
+  </div>
+
+  <div id="vaultGrid" class="vault-grid">
+    <div class="vault-empty" id="vaultEmpty">
+      <svg viewBox="0 0 24 24" width="40" height="40"><path fill="currentColor" opacity="0.3" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM13.96 12.29l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/></svg>
+      <p>Vault is empty</p>
+      <span>Tap + to import photos or videos</span>
+    </div>
+  </div>
+
+  <div class="vault-settings-link">
+    <button id="vaultSettingsBtn" class="ghost-btn">Change Face Lock</button>
+  </div>
+</div>
+
+<!-- ===================== VIEWER (full screen preview) ===================== -->
+<div id="viewerScreen" class="screen">
+  <div class="viewer-topbar">
+    <button id="viewerBack" class="icon-btn" aria-label="Back">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
+    </button>
+    <span id="viewerFilename"></span>
+    <button id="viewerDelete" class="icon-btn" aria-label="Delete">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+    </button>
+  </div>
+  <div class="viewer-content" id="viewerContent"></div>
+  <div class="viewer-bottombar">
+    <button id="viewerShare" class="ghost-btn">Send / Export</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/db.js"></script>
+<script src="js/facelock.js"></script>
+<script src="js/vault.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
